@@ -113,3 +113,65 @@ ProbState <- function(mu, t, lower, upper, state) {
   return(p)
 }
 
+###############################################################################
+# CondPower
+#
+# Input
+#   muA   drift of Brownian motion, under alternative hypothesis
+#   t     information fraction(s) at interim(s)
+#   lower lower bound(s) of B-value(s) at interim(s), if B < lower then stop
+#         for futility
+#   upper upper bound(s) of B-value(s) at interim(s), if B > upper then stop
+#         for efficacy
+#   z     critical B/Z-value in final analysis (this is where lower = upper)
+#   b     B-value(s) at interim(s) to calculate conditional power(s),
+#         default = lower
+#
+# Output
+#   null  conditional power(s) at interim(s), under null hypothesis
+#   alt   conditional power(s) at interim(s), under alternative hypothesis
+#   trend conditional power(s) at interim(s), estimating trend by B-value
+#   pred  conditional power(s) at interim(s), estimating trend by posterior
+###############################################################################
+CondPower <- function(muA, t, lower, upper, z, b = lower) {
+  n <- length(t)
+  null <- alt <- trend <- pred <- numeric(n)
+  tExt <- c(t, 1)
+  lowerExt <- c(lower, z)
+  upperExt <- c(upper, z)
+  for (i in 1 : n) {
+    for (j in (i + 1) : (n + 1)) {
+      null[i] <- null[i] + ProbState(mu = 0,
+                                     t = tExt[(i + 1) : j] - t[i],
+                                     lower = lowerExt[(i + 1) : j] - b[i],
+                                     upper = upperExt[(i + 1) : j] - b[i],
+                                     state = c(rep(0, j - i - 1), 1))
+      alt[i] <- alt[i] + ProbState(mu = muA,
+                                   t = tExt[(i + 1) : j] - t[i],
+                                   lower = lowerExt[(i + 1) : j] - b[i],
+                                   upper = upperExt[(i + 1) : j] - b[i],
+                                   state = c(rep(0, j - i - 1), 1))
+      trend[i] <- trend[i] + ProbState(mu = b[i] / t[i],
+                                       t = tExt[(i + 1) : j] - t[i],
+                                       lower = lowerExt[(i + 1) : j] - b[i],
+                                       upper = upperExt[(i + 1) : j] - b[i],
+                                       state = c(rep(0, j - i - 1), 1))
+      FunSingle <- function(muSingle) {
+        f <- ProbState(mu = muSingle,
+                       t = tExt[(i + 1) : j] - t[i],
+                       lower = lowerExt[(i + 1) : j] - b[i],
+                       upper = upperExt[(i + 1) : j] - b[i],
+                       state = c(rep(0, j - i - 1), 1)) *
+          dnorm(muSingle, b[i] / t[i], 1 / sqrt(t[i]))
+        return(f)
+      }
+      FunVector <- function(mu) {
+        f <- sapply(X = mu, FUN = FunSingle)
+        return(f)
+      }
+      pred[i] <- pred[i] + integrate(f = FunVector,
+                                     lower = -Inf, upper = Inf)$value
+    }
+  }
+  return(list(null = null, alt = alt, trend = trend, pred = pred))
+}
