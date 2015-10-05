@@ -24,7 +24,7 @@ Info <- function(n0, n1, n0.tot, n1.tot, s0 = 1, s1 = 1) {
 #
 # Input
 #   t       information fraction(s) at interim(s)
-#   n0.tot  total sample size of Group 0
+#   n.tot   total sample size
 #   r       ratio of n0 : n1 = n0.tot : n1.tot = 1 : r, default = 1
 #   s0      standard deviation of Group 0, default = 1
 #   s1      standard deviation of Group 1, default = 1
@@ -35,9 +35,10 @@ Info <- function(n0, n1, n0.tot, n1.tot, s0 = 1, s1 = 1) {
 #   n0.tot  total sample size of Group 0
 #   n1.tot  total sample size of Group 1
 ###############################################################################
-NInterim <- function(t, n0.tot, r = 1, s0 = 1, s1 = 1) {
+NInterim <- function(t, n.tot, r = 1, s0 = 1, s1 = 1) {
   v0 <- s0 ^ 2
   v1 <- s1 ^ 2
+  n0.tot <- n.tot / (1 + r)
   n1.tot <- n0.tot * r
   n0 <- t * (v0 + v1 / r) / (v0 / n0.tot + v1 / n1.tot)
   n1 <- n0 * r
@@ -128,10 +129,8 @@ ProbState <- function(mu, t, lower, upper, state) {
 #           default = lower
 #
 # Output
-#   null    conditional power(s) at interim(s), under null hypothesis
-#   alt     conditional power(s) at interim(s), under alternative hypothesis
-#   trend   conditional power(s) at interim(s), estimating trend by B-value
-#   pred    conditional power(s) at interim(s), estimating trend by posterior
+#   conditional.power
+#           a data.frame consists of conditional powers
 ###############################################################################
 CondPower <- function(mu.alt, t, lower, upper, z, b = lower) {
   n <- length(t)
@@ -198,4 +197,35 @@ B2C <- function(b, t) {
   z <- b / sqrt(t)
   z[t == 0] <- 0
   return(z)
+}
+
+###############################################################################
+# Design
+#
+# Input
+#   d.alt   difference in means between 2 groups, under alternative hypoethesis
+#   d.eval  difference in means as scenarios for performance evaluation,
+#           default = c(0, d.alt)
+#   t       information fraction(s) at interim(s)
+#   lower   lower bound(s) of B-value(s) at interim(s), if B < lower then stop
+#           for futility
+#   upper   upper bound(s) of B-value(s) at interim(s), if B > upper then stop
+#           for efficacy
+#   z       critical B/Z-value in final analysis (this is where lower = upper)
+#   n.tot   total sample size
+#   r       ratio of n0 : n1 = n0.tot : n1.tot = 1 : r, default = 1
+#   s0      standard deviation of Group 0, default = 1
+#   s1      standard deviation of Group 1, default = 1
+#   Cost    cost function, default = NULL
+#             input: t, n.tot
+#             output: cost(s) at interim(s)
+#   Benefit benefit function, default = NULL
+#             input: t, n.tot
+#             output: benefit(s) at interim(s)
+#
+# Output
+###############################################################################
+Design <- function(d.alt, d.eval = c(0, d.alt), t, lower, upper, z, n.tot,
+                   r = 1, s0 = 1, s1 = 1, Cost = NULL, Benefit = NULL) {
+  
 }
