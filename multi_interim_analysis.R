@@ -173,5 +173,29 @@ CondPower <- function(mu.alt, t, lower, upper, z, b = lower) {
                                      lower = -Inf, upper = Inf)$value
     }
   }
-  return(list(null = null, alt = alt, trend = trend, pred = pred))
+  conditional.power <- data.frame(info.fraction = t,
+                                  futility.bound = lower,
+                                  efficacy.bound = upper,
+                                  b.value = b,
+                                  cp.null = null,
+                                  cp.alt = alt,
+                                  cp.trend = trend,
+                                  cp.pred = pred)
+  return(conditional.power)
+}
+
+###############################################################################
+# B2C
+#
+# Input
+#   b       B-value(s) at interim(s)
+#   t       information fraction(s) at interim(s)
+#
+# Output
+#   z       Z-value(s) at interim(s)
+###############################################################################
+B2C <- function(b, t) {
+  z <- b / sqrt(t)
+  z[t == 0] <- 0
+  return(z)
 }
