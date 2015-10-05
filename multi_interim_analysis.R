@@ -172,15 +172,10 @@ CondPower <- function(mu.alt, t, lower, upper, z, b = lower) {
                                      lower = -Inf, upper = Inf)$value
     }
   }
-  conditional.power <- data.frame(info.fraction = t,
-                                  futility.bound = lower,
-                                  efficacy.bound = upper,
-                                  b.value = b,
-                                  cp.null = null,
-                                  cp.alt = alt,
-                                  cp.trend = trend,
-                                  cp.pred = pred)
-  return(conditional.power)
+  return(list(cp.null = null,
+              cp.alt = alt,
+              cp.trend = trend,
+              cp.pred = pred))
 }
 
 ###############################################################################
