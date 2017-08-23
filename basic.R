@@ -181,7 +181,10 @@ Utility <- function(d, n0, n1, N0, N1, lower, upper, z, UFun, s0 = 1, s1 = 1)
   # u
   u <- sum(u.state * p.state)
   
-  return(list(u = u, u.state = u.state, p.state = p.state))
+  # power (defined as success rate)
+  power <- sum(p.state[1, ])
+  
+  return(list(u = u, power = power, u.state = u.state, p.state = p.state))
 }
 
 
