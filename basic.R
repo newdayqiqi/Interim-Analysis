@@ -84,7 +84,7 @@ ProbState <- function(mu, t, lower, upper, state)
   {
     if (state == 1)
     {
-      p <- 1 - pnorm(upper, mean = mu * t, sd = sqrt(t))
+      p <- pnorm(upper, mean = mu * t, sd = sqrt(t), lower.tail = FALSE)
     }
     else if (state == 0)
     {
@@ -170,7 +170,7 @@ Utility <- function(d, n0, n1, N0, N1, lower, upper, z, UFun, s0 = 1, s1 = 1)
   
   # p.state
   p.state <- matrix(NA, 2, k + 1)
-  for (i in 1 : k)
+  for (i in seq_len(k))
   {
     p.state[1, i] <- ProbState(mu, t[1 : i], lower[1 : i], upper[1 : i], c(numeric(i - 1), 1))
     p.state[2, i] <- ProbState(mu, t[1 : i], lower[1 : i], upper[1 : i], c(numeric(i - 1), -1))
