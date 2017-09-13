@@ -238,7 +238,7 @@ for (scenario in d.seq)
   boundary.opt <- boundary.grid[ind[2]]
   out <- UtilityWrapper(scenario, n.opt, boundary.opt)
   dat.figure3 <- rbind(dat.figure3,
-                       data.frame(design = "Optimal design under d ~ N(0.2, 0.02)", true = scenario, u = out$u))
+                       data.frame(design = paste("Optimal design under d ~ N(0.2,", round(sqrt(1/50), 3) ,")", sep = ""), true = scenario, u = out$u))
   
   # Fixed design
   out <- Utility(scenario, numeric(0), numeric(0), N, N, numeric(0), numeric(0), qnorm(0.025, lower.tail = FALSE), UFun)
